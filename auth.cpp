@@ -5,7 +5,7 @@
 #include <string>
 #include <ws2tcpip.h>
 #include <Wbemidl.h>
-#include <comdef.h> // _bstr_t için gerekli
+#include <comdef.h> 
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "wbemuuid.lib")
 
@@ -36,7 +36,7 @@ std::string getDiskID() {
 
     IWbemServices* pSvc = NULL;
     hres = pLoc->ConnectServer(
-        _bstr_t(L"ROOT\\CIMV2"), // Namespace
+        _bstr_t(L"ROOT\\CIMV2"), 
         NULL,
         NULL,
         0,
@@ -70,7 +70,7 @@ std::string getDiskID() {
     ULONG uReturn = 0;
     hres = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
     if (uReturn == 0) {
-        std::cerr << "Disk ID alınamadı!" << std::endl;
+        std::cerr << "" << std::endl;
         pSvc->Release();
         pLoc->Release();
         CoUninitialize();
@@ -80,7 +80,7 @@ std::string getDiskID() {
     VARIANT vtProp;
     hres = pclsObj->Get(L"SerialNumber", 0, &vtProp, 0, 0);
     if (FAILED(hres)) {
-        std::cerr << "Disk Serial Number alınamadı!" << std::endl;
+        std::cerr << "" << std::endl;
         pclsObj->Release();
         pSvc->Release();
         pLoc->Release();
@@ -91,7 +91,7 @@ std::string getDiskID() {
     diskID = _bstr_t(vtProp.bstrVal);
     VariantClear(&vtProp);
 
-    // Temizlik işlemleri
+
     pclsObj->Release();
     pEnumerator->Release();
     pSvc->Release();
@@ -109,29 +109,27 @@ bool validateAuthKey(const std::string& authKey, const std::string& diskID) {
 
 void setTextColor(bool isValidKey, bool isExpired) {
     if (isExpired) {
-        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_INTENSITY);  // Expired = Red
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_INTENSITY);  
     }
     else if (isValidKey) {
-        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN);  // Valid = Green
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN);  
     }
     else {
-        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED);  // Invalid = Red
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED); 
     }
 }
 
 void authenticate(const std::string& authKey) {
-    // Sunucu IP'si ve portu
+
     std::string ip = "127.0.0.1";
     int port = 5555;
 
-    // Disk ID'yi al
     std::string diskID = getDiskID();
     if (diskID.empty()) {
         std::cerr << "Disk ID alınamadı!" << std::endl;
         return;
     }
 
-    // Winsock başlatma
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
         std::cerr << "Winsock başlatılamadı!" << std::endl;
@@ -140,7 +138,7 @@ void authenticate(const std::string& authKey) {
 
     SOCKET sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sock == INVALID_SOCKET) {
-        std::cerr << "Socket oluşturulamadı!" << std::endl;
+        std::cerr << "" << std::endl;
         WSACleanup();
         return;
     }
@@ -150,14 +148,14 @@ void authenticate(const std::string& authKey) {
     serverAddr.sin_port = htons(port);
 
     if (InetPton(AF_INET, ip.c_str(), &serverAddr.sin_addr) != 1) {
-        std::cerr << "Geçersiz adres!" << std::endl;
+        std::cerr << "" << std::endl;
         closesocket(sock);
         WSACleanup();
         return;
     }
 
     if (connect(sock, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
-        std::cerr << "Sunucuya bağlanılamadı!" << std::endl;
+        std::cerr << "" << std::endl;
         closesocket(sock);
         WSACleanup();
         return;
@@ -169,7 +167,7 @@ void authenticate(const std::string& authKey) {
     char buffer[256];
     int bytesReceived = recv(sock, buffer, sizeof(buffer) - 1, 0);
     if (bytesReceived == SOCKET_ERROR) {
-        std::cerr << "Sunucudan cevap alınamadı!" << std::endl;
+        std::cerr << "" << std::endl;
         closesocket(sock);
         WSACleanup();
         return;
@@ -184,13 +182,13 @@ void authenticate(const std::string& authKey) {
     setTextColor(isValidKey, isExpired);
 
     if (isValidKey && !isExpired) {
-        std::cout << "Key doğru ve geçerli!" << std::endl;
+        std::cout << "valid key" << std::endl;
     }
     else if (isExpired) {
-        std::cout << "Lisans süresi dolmuş!" << std::endl;
+        std::cout << "expired key" << std::endl;
     }
     else {
-        std::cout << "Key yanlış!" << std::endl;
+        std::cout << "invalid key" << std::endl;
     }
 
     closesocket(sock);
