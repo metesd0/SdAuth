@@ -15,13 +15,13 @@ std::string getDiskID() {
 
     hres = CoInitializeEx(0, COINIT_MULTITHREADED);
     if (FAILED(hres)) {
-        std::cerr << "COM kütüphanesi başlatılamadı!" << std::endl;
+        std::cerr << "" << std::endl;
         return "";
     }
 
     hres = CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
     if (FAILED(hres)) {
-        std::cerr << "Güvenlik başlatılamadı!" << std::endl;
+        std::cerr << "" << std::endl;
         CoUninitialize();
         return "";
     }
@@ -29,7 +29,7 @@ std::string getDiskID() {
     IWbemLocator* pLoc = NULL;
     hres = CoCreateInstance(CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID*)&pLoc);
     if (FAILED(hres)) {
-        std::cerr << "WMI bağlantısı kurulamadı!" << std::endl;
+        std::cerr << "" << std::endl;
         CoUninitialize();
         return "";
     }
@@ -45,7 +45,7 @@ std::string getDiskID() {
         0,
         &pSvc);
     if (FAILED(hres)) {
-        std::cerr << "WMI servisine bağlanılamadı!" << std::endl;
+        std::cerr << "" << std::endl;
         pLoc->Release();
         CoUninitialize();
         return "";
@@ -59,7 +59,7 @@ std::string getDiskID() {
         NULL,
         &pEnumerator);
     if (FAILED(hres)) {
-        std::cerr << "Sorgu çalıştırılamadı!" << std::endl;
+        std::cerr << "" << std::endl;
         pSvc->Release();
         pLoc->Release();
         CoUninitialize();
@@ -174,7 +174,7 @@ void authenticate(const std::string& authKey) {
     }
 
     buffer[bytesReceived] = '\0';
-    std::cout << "Sunucu cevabı: " << buffer << std::endl;
+    std::cout << "Sunucu: " << buffer << std::endl;
 
     bool isValidKey = validateAuthKey(authKey, diskID);
     bool isExpired = (std::string(buffer) == "LICENSE_EXPIRED");
