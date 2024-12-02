@@ -121,18 +121,18 @@ void setTextColor(bool isValidKey, bool isExpired) {
 
 void authenticate(const std::string& authKey) {
 
-    std::string ip = "127.0.0.1";
+    std::string ip = "98.81.220.75";
     int port = 5555;
 
     std::string diskID = getDiskID();
     if (diskID.empty()) {
-        std::cerr << "Disk ID alınamadı!" << std::endl;
+        std::cerr << "" << std::endl;
         return;
     }
 
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-        std::cerr << "Winsock başlatılamadı!" << std::endl;
+        std::cerr << "" << std::endl;
         return;
     }
 
